@@ -23,7 +23,7 @@ THRESHOLD_SUSPICIOUS = 40.0
 class ScoreAggregator:
     def compute_score(
         self, ml_result: MLResultResponse, blockchain_result: BlockchainResultResponse
-    ) -> tuple[float, str]:
+    ) -> tuple[float, Verdict]:
         ml_trust = (1.0 - ml_result.confidence) * 100
 
         spatial_score = 50.0
