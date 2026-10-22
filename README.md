@@ -1,120 +1,123 @@
-# 🛡️ Sentinels of Integrity
+# ⚖️ OmniScan: AI-Powered Court-Admissible Digital Forensics Platform
 
-> **AI-Powered Truth Guard** — Real-time defense against synthetic media.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org)
-[![Rust 1.80+](https://img.shields.io/badge/Rust-1.80+-orange.svg)](https://rust-lang.org)
-[![Polygon zkEVM](https://img.shields.io/badge/Blockchain-Polygon%20zkEVM-purple.svg)](https://polygon.technology)
-
----
-
-## 🎯 What Is This?
-
-Sentinels of Integrity is a **three-pillar system** that detects deepfakes and verifies media authenticity in real time:
-
-| Pillar | Technology | Purpose |
-|--------|-----------|---------|
-| 🧠 **ML Detection Engine** | Xception CNN + Bi-GRU | Frame-by-frame deepfake analysis with ≥96% accuracy |
-| 🔗 **Blockchain Vault** | Polygon zkEVM + Circom ZK | Cryptographic provenance & content registration |
-| 🌐 **Browser Extension** | React + Manifest V3 | Real-time Trust HUD overlay on YouTube, X, TikTok |
+> **AI-Powered Court-Admissible Digital Forensics Platform for Deepfake and Document Tampering Detection**  
+> Final Year B.E. Project • Dr. D. Y. Patil College of Engineering and Innovation (DYPCOEI), Varale, Talegaon, Pune  
+> Department of Computer Engineering • Academic Year 2026-2027  
+> **Under Guidance of:** Dr. Suresh Mali, Director (DYPCOEI)  
+> **Team:** Anil Balwan Khichar [72342233J] (Lead), Tanpure Siddhi Suresh [72342426J], Bhusari Suvarna Ganesh [72342253C], Bhakti Bibhishan Bhoskar [72455504J]
 
 ---
 
-## 🏗️ Architecture
+## 🎯 Platform Overview
 
-```
-Extension → API → ML Inference + Blockchain Lookup → Sentinels Score → Trust HUD
-```
-
-1. **Extension** sends media URL/hash to the API
-2. **API** triggers ML inference and blockchain lookup in parallel
-3. **ML Engine** returns `{is_synthetic, confidence, artifacts}`
-4. **Blockchain** returns `{is_registered, author, edit_history}`
-5. **Score Aggregator** combines results into a **Sentinels Score (0–100)**
-6. **Extension** renders the Trust HUD overlay on the video
+OmniScan is designed to bridge the critical gap between raw deep learning detection scores and legal admissibility standards. Operating on Universal (Blind) Steganalysis, OmniScan functions independently of file headers or metadata containers. It extracts raw pixel matrices directly and analyzes higher-order statistical moments, sensor noise patterns, and high-frequency spectral artifacts to expose minute edits—even when tampered videos are re-encoded, altered in frequency, or converted back to a static state.
 
 ---
 
-## 📁 Project Structure
+## 🔬 Core Engineering Innovations
+
+1. **Header-Agnostic Raw Pixel Extraction Engine**:
+   - Bypasses file headers, containers, and EXIF metadata tags.
+   - Demuxes raw pixel matrices directly from input bitstreams using decoupled OpenCV and FFmpeg stream readers.
+   - Full immunity to modified, spoofed, or stripped file headers.
+
+2. **Multi-Modal Routing Engine**:
+   - **Dynamic Video Bitstreams (MP4, AVI, WebM)**: Evaluated across spatial, 2D spectral (2D-FFT/DCT grid leakages), and 3D temporal / Farneback Optical Flow pipelines (detecting frame dropping, velocity jerk, and unnatural pauses).
+   - **Static Documents & Certificates (PDF, PNG, JPG, ID Cards, Seals)**: Evaluated via Error Level Analysis (ELA) and Photo-Response Non-Uniformity (PRNU) noise fingerprinting to expose forged signatures and altered document text.
+
+3. **Dual-Domain (2D-FFT / 2D-DCT / DWT Haar) Spectral Decomposition**:
+   - Implements Suryawanshi & Mali (2018) higher-order statistical moments ($\mu$, $\sigma$, $S$, $K$) across AC/DC DCT coefficients.
+   - Uncovers periodic grid artifacts and spectral leakage introduced by generative AI upscaling layers (GANs, Diffusion models).
+
+4. **Courtroom Admissibility (ISO/IEC 27037 Compliance)**:
+   - Immediate SHA-256 cryptographic hash calculated upon file ingestion, logged in an immutable chain-of-custody audit trail.
+   - **Explainable AI via Grad-CAM**: Maps deep learning feature activations back to raw spatial coordinates using Grad-CAM visual heatmaps (Selvaraju et al., 2017) to provide verifiable visual evidence.
+   - **Automated Court-Admissible Forensic PDF Certificate**: Compiles detection scores, 2D-FFT spectral plots, ELA maps, Grad-CAM overlays, and SHA-256 logs into a structured PDF certificate using ReportLab.
+
+---
+
+## 📚 Research Literature Implemented
+
+- **Suryawanshi & Mali (2018)**: Spatial-domain steganography analysis on DCT statistical moments (mean, std, skewness, kurtosis).
+- **Li et al. (2023)**: Deep learning feature-based steganalysis with multi-classifier voting ensemble.
+- **De La Croix et al. (2025)**: HSDetect-Net fuzzy-based deep learning steganalysis.
+- **Swarnkar & Thomas (2025)**: StegEfficientNetB0 compound-scaled transfer learning.
+- **Boroumand et al. (2018)**: SRNet un-quantified residual convolutions for steganalysis.
+- **Lukas et al. (2006)**: Photo-Response Non-Uniformity (PRNU) sensor pattern noise extraction.
+- **Krawetz (2007)**: Error Level Analysis (ELA) intentional differential recompression mapping.
+- **Selvaraju et al. (2017)**: Grad-CAM gradient-weighted class activation mapping for spatial explainability.
+
+---
+
+## 🏗️ Architecture Workflow
 
 ```
-├── api/            # Zero-Trust Backend (Rust core + FastAPI)
-├── ml_models/      # ML Training & Inference (PyTorch)
-├── contracts/      # Solidity Smart Contracts + ZK Circuits
-├── extension/      # Hardened Browser Extension (React/Vite)
-├── shared/         # Shared Protobuf schemas & type definitions
-├── infra/          # Docker, Kubernetes, monitoring, security
-├── tests/          # Unit, integration, and E2E tests
-└── docs/           # Architecture, API reference, deployment guides
+[ Upload Input Media (Video / Document) ]
+                   │
+                   ▼
+┌────────────────────────────────────────────────────────┐
+│     Step 1: Ingestion & Integrity Preservation        │
+│     • Generate Immutable SHA-256 Hash Log              │
+│     • Extract Decoupled Raw Pixels / Frame Matrices    │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                 [ MIME Auto-Routing ]
+                 ┌─────────┴─────────┐
+                 ▼                   ▼
+     [ Video Steganalysis ]   [ Document Forensics ]
+     ├── 2D-FFT / DCT Grid    ├── Error Level Analysis (ELA)
+     ├── PRNU Sensor Noise    ├── PRNU Signature Noise
+     └── Farneback Flow       └── Layout / OCR Checks
+                 │                   │
+                 └─────────┬─────────┘
+                           │
+                           ▼
+          [ Dual-Stream Fusion Neural Network ]
+          ├── SRNet Residual Noise Extractor
+          └── Grad-CAM Explainable Activation Map
+                           │
+                           ▼
+          [ Forensic Evidence Output Engine ]
+          ├── Interactive Grad-CAM Heatmap Viewer
+          ├── Frequency Anomaly Graphs (2D-FFT/DCT)
+          └── Court-Admissible PDF Forensic Certificate
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Running the Project
 
-### Prerequisites
+### Double-Click Launch (Windows)
+Simply double-click `RUN_PROJECT.bat` in the repository root. This will:
+1. Validate required dependencies.
+2. Clean up port `8000`.
+3. Launch the FastAPI forensic backend.
+4. Open the OmniScan Web Dashboard in your browser.
 
-- **Python** 3.11+
-- **Rust** 1.80+
-- **Node.js** 18+
-- **Docker** & Docker Compose
-- **Hardhat** (for smart contracts)
+### Manual Launch
+```bash
+# Start Backend API
+cd api
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-### 1. Clone & Setup
+# Open Web Dashboard
+# Open index.html or visual_demo.html in any browser
+```
+
+---
+
+## 🧪 Running Forensic Tests
 
 ```bash
-git clone https://github.com/your-org/sentinels-of-integrity.git
-cd sentinels-of-integrity
+python -c "
+from tests.unit.test_omniscan_forensics import *
+test_header_agnostic_ingestion()
+test_frequency_analyzer_and_moments()
+test_ela_analyzer()
+test_prnu_extractor()
+test_optical_flow_analyzer()
+test_srnet_grad_cam()
+test_pdf_certificate_service()
+print('All OmniScan tests passed!')
+"
 ```
-
-### 2. Start All Services (Docker)
-
-```bash
-docker-compose -f infra/docker-compose.yml up --build
-```
-
-### 3. Run Individual Components
-
-```bash
-# Backend API
-cd api && pip install -r requirements.txt && uvicorn app.main:app --reload
-
-# ML Engine
-cd ml_models && pip install -r requirements.txt && python -m training.train
-
-# Smart Contracts
-cd contracts && npm install && npx hardhat compile
-
-# Browser Extension
-cd extension && npm install && npm run dev
-```
-
----
-
-## 🔒 Security
-
-- **Data Minimization**: Never stores raw video — SHA-256 hashes only
-- **Memory Safety**: Critical crypto primitives written in Rust
-- **Encryption**: AES-256-GCM for all data at rest
-- **Adversarial Defense**: IBM ART robustness + adversarial patch detection
-- **Differential Privacy**: Opacus during model training
-- **ZK Privacy**: Circom zero-knowledge proofs for anonymous verification
-- **Extension Hardening**: CSP, SRI, code obfuscation, local-first hashing
-
----
-
-## 🎯 KPIs
-
-| Metric | Target |
-|--------|--------|
-| Detection Accuracy | ≥ 96% on Celeb-DF v2 |
-| Hash Lookup Latency | < 500ms |
-| Full ML Scan Latency | < 3 seconds |
-| Daily Verifications | ≥ 5 per active user |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.
