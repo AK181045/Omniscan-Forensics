@@ -1,461 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>OmniScan | Forensic Investigation Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg-base: #030508;
-            --bg-grad-1: #0a0f1a;
-            --bg-grad-2: #050810;
-            --glass: rgba(18, 24, 38, 0.55);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-glow: rgba(0, 242, 255, 0.15);
-            --accent: #00f2ff;
-            --accent-glow: #0066ff;
-            --safe: #00ff88;
-            --warn: #ffbb00;
-            --danger: #ff3344;
-            --text-main: #f0f4f8;
-            --text-muted: #8a9bb3;
-        }
-
-        @keyframes bgPulse {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        body {
-            background: linear-gradient(-45deg, var(--bg-base), var(--bg-grad-1), var(--bg-base), var(--bg-grad-2));
-            background-size: 400% 400%;
-            animation: bgPulse 18s ease infinite;
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: flex-start;
-            padding: 30px 0;
-            box-sizing: border-box;
-        }
-
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 1360px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 35px;
-        }
-
-        .logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo i {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            box-shadow: 0 0 15px var(--accent);
-        }
-
-        .status-badge {
-            padding: 8px 18px;
-            border-radius: 30px;
-            background: rgba(0, 255, 136, 0.05);
-            color: var(--safe);
-            font-size: 12px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border: 1px solid rgba(0, 255, 136, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            backdrop-filter: blur(10px);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--safe);
-            border-radius: 50%;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 30px;
-        }
-
-        .card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: white;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            outline: none;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            letter-spacing: 1px;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn.active {
-            background: rgba(0, 242, 255, 0.12);
-            border-color: var(--accent);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
-        }
-
-        .file-upload-wrapper {
-            position: relative;
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            background: rgba(0, 0, 0, 0.25);
-            text-align: center;
-            cursor: pointer;
-            padding: 25px 15px;
-            transition: all 0.3s;
-        }
-
-        .file-upload-wrapper:hover {
-            border-color: var(--accent);
-            background: rgba(0, 242, 255, 0.05);
-        }
-
-        #file-input {
-            opacity: 0;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            cursor: pointer;
-        }
-
-        .btn-scan {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-            border: none;
-            border-radius: 12px;
-            color: #000;
-            font-weight: 700;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-        }
-
-        .btn-scan:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 102, 255, 0.4);
-        }
-
-        .btn-pdf {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 14px 24px;
-            background: rgba(0, 242, 255, 0.1);
-            border: 1px solid var(--accent);
-            border-radius: 10px;
-            color: var(--accent);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-
-        .btn-pdf:hover {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
-        }
-
-        .chain-box {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            padding: 14px 18px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-family: monospace;
-            font-size: 12px;
-        }
-
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 25px;
-        }
-
-        .score-circle {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            border: 3px solid currentColor;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .score-value {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 48px;
-            font-weight: 700;
-            margin: 0;
-            line-height: 1;
-        }
-
-        .score-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            opacity: 0.7;
-            margin-top: 6px;
-        }
-
-        .verdict-tag {
-            display: inline-block;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-        }
-
-        .verdict-authentic {
-            background: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            border: 1px solid rgba(0, 255, 136, 0.3);
-        }
-
-        .verdict-synthetic {
-            background: rgba(255, 51, 68, 0.1);
-            color: #ff3344;
-            border: 1px solid rgba(255, 51, 68, 0.3);
-        }
-
-        .evidence-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 25px;
-        }
-
-        .evidence-card {
-            background: rgba(0, 0, 0, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 14px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .evidence-card img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            background: #000;
-        }
-
-        .evidence-info {
-            padding: 12px;
-        }
-
-        .evidence-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #fff;
-            text-transform: uppercase;
-        }
-
-        .evidence-sub {
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 14px;
-            margin-top: 20px;
-        }
-
-        .metric-box {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 14px;
-        }
-
-        .metric-label {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .metric-val {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            margin-top: 6px;
-        }
-
-        .hidden { display: none !important; }
+        /* Dark glass background used throughout */
+        .glass { backdrop-filter: blur(12px); background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12); }
+        .accent { background: linear-gradient(to right, #00f2ff, #0066ff); -webkit-background-clip: text; color: transparent; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <div style="display:flex; align-items:center; gap:30px;">
-                <a href="index.html" style="text-decoration:none; color:var(--text-muted); font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <span>←</span> HOME
-                </a>
-                <div class="logo"><i></i> OmniScan Forensics</div>
-            </div>
-            <div class="status-badge" id="api-status">
-                <div class="status-dot"></div> <span id="status-text">CONNECTING...</span>
+<body class="bg-gray-900 text-gray-200 font-inter min-h-screen flex flex-col items-center">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8">
+            <a href="index.html" class="flex items-center gap-2 text-sm font-semibold text-gray-400 hover:text-white transition">
+                <span class="text-gray-400">←</span> HOME
+            </a>
+            <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1 text-gray-400" id="api-status">
+                    <div class="status-dot bg-gray-500"></div>
+                    <span id="status-text" class="text-sm">CONNECTING...</span>
+                </div>
+                <div class="logo flex items-center gap-2 text-2xl font-bold accent">
+                    <i class="inline-block w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-600 rounded"></i> OmniScan Forensics
+                </div>
             </div>
         </header>
 
-        <div class="grid">
-            <!-- Left: Investigation Input Panel -->
-            <div class="card">
-                <h3 style="margin-top:0; font-family:'Space Grotesk',sans-serif; letter-spacing:1px; font-size:18px;">
-                    FORENSIC INGESTION
-                </h3>
-
-                <!-- Modality Switcher -->
-                <div class="input-group" style="display:flex; gap:10px; margin-bottom:20px;">
-                    <button id="mod-video" class="tab-btn active" onclick="setModality('video')">Dynamic Video</button>
-                    <button id="mod-doc" class="tab-btn" onclick="setModality('document')">Document / Scan</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Left panel – Input -->
+            <section class="glass p-6 rounded-xl">
+                <h3 class="text-xl font-bold mb-4">FORENSIC INGESTION</h3>
+                <!-- Modality switcher -->
+                <div class="flex gap-2 mb-4">
+                    <button id="mod-video" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 active:bg-gray-700" onclick="setModality('video')">Dynamic Video</button>
+                    <button id="mod-doc" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700" onclick="setModality('document')">Document / Scan</button>
                 </div>
-
-                <!-- Input Type Switcher -->
-                <div class="input-group" style="display:flex; gap:10px; margin-bottom:20px;">
-                    <button id="tab-file" class="tab-btn active" onclick="switchInputTab('file')">Device Upload</button>
-                    <button id="tab-url" class="tab-btn" onclick="switchInputTab('url')">URL Stream</button>
+                <!-- Input type tabs -->
+                <div class="flex gap-2 mb-4">
+                    <button id="tab-file" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 active:bg-gray-700" onclick="switchInputTab('file')">Device Upload</button>
+                    <button id="tab-url" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700" onclick="switchInputTab('url')">URL Stream</button>
                 </div>
-
-                <!-- Direct Upload (Header-Agnostic) -->
-                <div class="input-group" id="file-container">
-                    <label>Header-Agnostic Raw Bitstream</label>
-                    <div class="file-upload-wrapper" id="drop-zone">
-                        <input type="file" id="file-input" onchange="handleFileSelect(event)">
-                        <div id="file-label">
-                            <span style="font-size:24px; display:block; margin-bottom:8px;">📁</span>
-                            <span id="file-selected-name" style="font-size:13px; font-weight:500;">Click to Browse or Drag File</span>
-                            <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">MP4, AVI, WebM, PDF, JPG, PNG</div>
-                        </div>
+                <!-- File upload -->
+                <div id="file-container" class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-1">Header‑Agnostic Raw Bitstream</label>
+                    <div class="relative border-2 border-dashed border-gray-600 rounded p-4 text-center cursor-pointer hover:border-cyan-400 transition">
+                        <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileSelect(event)" />
+                        <span class="text-2xl">📁</span>
+                        <p id="file-selected-name" class="mt-1 text-sm">Click to Browse or Drag File</p>
+                        <p class="text-xs text-gray-500 mt-1">MP4, AVI, WebM, PDF, JPG, PNG</p>
                     </div>
                 </div>
-
-                <!-- URL link input -->
-                <div class="input-group hidden" id="url-container">
-                    <label>Media Bitstream URL</label>
-                    <input type="text" id="url-input" value="https://example.com/court_sample_video.mp4">
+                <!-- URL input -->
+                <div id="url-container" class="hidden mb-4">
+                    <label class="block text-sm text-gray-400 mb-1">Media Bitstream URL</label>
+                    <input type="text" id="url-input" class="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400" value="https://example.com/court_sample_video.mp4" />
                 </div>
-
-                <div class="input-group">
-                    <label>Platform / Origin Profile</label>
-                    <select id="platform-select">
+                <!-- Platform selector -->
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-400 mb-1">Platform / Origin Profile</label>
+                    <select id="platform-select" class="w-full p-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-cyan-400">
                         <option value="device">Direct Raw Ingestion (Local Device)</option>
                         <option value="youtube">YouTube Stream</option>
                         <option value="twitter">X / Twitter</option>
@@ -463,306 +70,212 @@
                         <option value="other">External Network Stream</option>
                     </select>
                 </div>
-
-                <button class="btn-scan" onclick="executeScan()">EXECUTE FORENSIC SCAN</button>
-
-                <!-- ISO/IEC 27037 Audit Summary -->
-                <div style="margin-top:35px; border-top:1px solid rgba(255,255,255,0.08); padding-top:20px;">
-                    <label>ISO/IEC 27037 Standard Protocol</label>
-                    <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+                <button class="w-full py-3 mt-2 bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-bold rounded hover:scale-105 transform transition" onclick="executeScan()">EXECUTE FORENSIC SCAN</button>
+                <!-- ISO/IEC 27037 summary -->
+                <div class="mt-6 pt-4 border-t border-gray-700 text-sm">
+                    <label class="block text-gray-400 mb-2">ISO/IEC 27037 Standard Protocol</label>
+                    <p class="text-gray-500 leading-relaxed">
                         • Decoupled OpenCV/FFmpeg matrix demuxing.<br/>
-                        • Non-repudiation via SHA-256 hash log.<br/>
-                        • Dual-domain 2D-FFT/DCT & ELA examination.<br/>
-                        • Grad-CAM explainable visual localization.
-                    </div>
+                        • Non-repudiation via SHA‑256 hash log.<br/>
+                        • Dual‑domain 2D‑FFT/DCT & ELA examination.<br/>
+                        • Grad‑CAM explainable visual localization.
+                    </p>
                 </div>
-            </div>
+            </section>
 
-            <!-- Right: Results & Legal Evidence -->
-            <div class="card" id="results-card">
-                <div id="placeholder-text" style="height:480px; display:flex; flex-direction:column; justify-content:center; align-items:center; opacity:0.35;">
-                    <div style="font-size:56px; margin-bottom:15px;">⚖️</div>
-                    <div style="font-family:'Space Grotesk',sans-serif; letter-spacing:2px; font-size:14px;">AWAITING BITSTREAM INGESTION</div>
-                </div>
-
+            <!-- Right panel – Results -->
+            <section class="glass p-6 rounded-xl" id="results-card">
+                <div id="placeholder-text" class="flex flex-col items-center justify-center h-96 opacity-30 text-6xl">⚖️<p class="mt-4 text-sm uppercase">AWAITING BITSTREAM INGESTION</p></div>
                 <div id="actual-results" class="hidden">
-                    <!-- Chain of Custody Bar -->
-                    <div class="chain-box">
+                    <!-- Chain of custody -->
+                    <div class="flex justify-between items-center mb-4 p-3 bg-gray-800 rounded">
+                        <div class="text-sm"><span class="text-cyan-400">SHA‑256:</span> <span id="res-hash"></span></div>
+                        <div class="text-green-400 font-bold">✓ ISO/IEC 27037 VERIFIED</div>
+                    </div>
+                    <div class="flex justify-between items-center mb-6">
                         <div>
-                            <span style="color:var(--accent);">SHA-256: </span>
-                            <span id="res-hash">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
+                            <span id="verdict-label" class="px-3 py-1 rounded text-xs font-semibold bg-green-900 text-green-300">AUTHENTIC</span>
+                            <h2 id="res-modality-heading" class="mt-2 text-2xl font-bold"></h2>
+                            <div id="res-id" class="text-xs text-gray-500"></div>
                         </div>
-                        <div style="color:var(--safe); font-weight:700;">
-                            ✓ ISO/IEC 27037 VERIFIED
+                        <div class="flex flex-col items-center" id="score-circle" style="color:var(--safe);">
+                            <div id="score-val" class="text-4xl font-bold"></div>
+                            <div class="text-xs uppercase opacity-70">Trust Score</div>
                         </div>
                     </div>
-
-                    <div class="results-header">
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="p-3 bg-gray-800 rounded">
+                            <div class="text-xs text-gray-400">Universal Steganalysis</div>
+                            <div id="metric-steg" class="mt-1 font-bold"></div>
+                        </div>
+                        <div class="p-3 bg-gray-800 rounded">
+                            <div id="metric-2-lbl" class="text-xs text-gray-400"></div>
+                            <div id="metric-2-val" class="mt-1 font-bold"></div>
+                        </div>
+                        <div class="p-3 bg-gray-800 rounded">
+                            <div id="metric-3-lbl" class="text-xs text-gray-400"></div>
+                            <div id="metric-3-val" class="mt-1 font-bold"></div>
+                        </div>
+                        <div class="p-3 bg-gray-800 rounded">
+                            <div id="metric-4-lbl" class="text-xs text-gray-400"></div>
+                            <div id="metric-4-val" class="mt-1 font-bold"></div>
+                        </div>
+                    </div>
+                    <!-- Visual evidence -->
+                    <h4 class="text-sm uppercase text-cyan-400 mb-3">Visual Evidence Artifacts (Explainable AI)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-gray-800 rounded overflow-hidden">
+                            <img id="img-gradcam" class="w-full h-48 object-cover" alt="Grad‑CAM Heatmap" />
+                            <div class="p-2">
+                                <p class="text-sm font-semibold">Grad‑CAM Spatial Heatmap</p>
+                                <p class="text-xs text-gray-400">Gradient‑weighted localization of high‑order neural activations.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 rounded overflow-hidden">
+                            <img id="img-spectrum" class="w-full h-48 object-cover" alt="Frequency Spectrum" />
+                            <div class="p-2">
+                                <p class="text-sm font-semibold">2D‑FFT Spectral Spectrum</p>
+                                <p class="text-xs text-gray-400">Exposes periodic high‑frequency lattice spikes from generative AI.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 rounded overflow-hidden">
+                            <img id="img-modality" class="w-full h-48 object-cover" alt="Modality Artifact" />
+                            <div class="p-2">
+                                <p id="aux2-title" class="text-sm font-semibold"></p>
+                                <p id="aux2-desc" class="text-xs text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Certificate download -->
+                    <div class="mt-6 flex items-center justify-between p-4 bg-gray-800 rounded">
                         <div>
-                            <span class="verdict-tag verdict-authentic" id="verdict-label">AUTHENTIC</span>
-                            <h2 style="margin:10px 0 4px 0; font-family:'Space Grotesk',sans-serif; font-size:26px;" id="res-modality-heading">
-                                DYNAMIC VIDEO FORENSIC REPORT
-                            </h2>
-                            <div style="font-size:12px; color:var(--text-muted);" id="res-id">Case ID: ---</div>
+                            <p class="font-semibold text-white">Certified Forensic PDF Certificate</p>
+                            <p class="text-xs text-gray-400 mt-1">Export signed ISO/IEC 27037 documentation with embedded plots and audit chain.</p>
                         </div>
-
-                        <div style="display:flex; align-items:center; gap:25px;">
-                            <div class="score-circle" id="score-circle" style="color:var(--safe);">
-                                <div class="score-value" id="score-val">96</div>
-                                <div class="score-label">Trust Score</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metrics Grid -->
-                    <div class="metrics-grid">
-                        <div class="metric-box">
-                            <div class="metric-label">Universal Steganalysis</div>
-                            <div class="metric-val" id="metric-steg">12% Prob</div>
-                        </div>
-                        <div class="metric-box">
-                            <div class="metric-label" id="metric-2-lbl">Spectral Grid Leakage</div>
-                            <div class="metric-val" id="metric-2-val">0.08 Index</div>
-                        </div>
-                        <div class="metric-box">
-                            <div class="metric-label" id="metric-3-lbl">PRNU Sensor Consistency</div>
-                            <div class="metric-val" id="metric-3-val">0.94 Clean</div>
-                        </div>
-                        <div class="metric-box">
-                            <div class="metric-label" id="metric-4-lbl">Motion Continuity</div>
-                            <div class="metric-val" id="metric-4-val">0.97 Smooth</div>
-                        </div>
-                    </div>
-
-                    <!-- Visual Forensic Evidence (Grad-CAM, Spectrum, ELA, Flow) -->
-                    <h4 style="margin:30px 0 15px 0; font-family:'Space Grotesk',sans-serif; text-transform:uppercase; letter-spacing:1.5px; font-size:13px; color:var(--accent);">
-                        VISUAL EVIDENCE ARTIFACTS (EXPLAINABLE AI)
-                    </h4>
-
-                    <div class="evidence-grid">
-                        <div class="evidence-card">
-                            <img id="img-gradcam" src="" alt="Grad-CAM Heatmap">
-                            <div class="evidence-info">
-                                <div class="evidence-title">Grad-CAM Spatial Heatmap</div>
-                                <div class="evidence-sub">Gradient-weighted localization of high-order neural activations (Selvaraju 2017).</div>
-                            </div>
-                        </div>
-
-                        <div class="evidence-card" id="card-aux1">
-                            <img id="img-spectrum" src="" alt="Frequency Spectrum">
-                            <div class="evidence-info">
-                                <div class="evidence-title">2D-FFT Spectral Spectrum</div>
-                                <div class="evidence-sub">Exposes periodic high-frequency lattice spikes from generative AI upscaling layers.</div>
-                            </div>
-                        </div>
-
-                        <div class="evidence-card" id="card-aux2">
-                            <img id="img-modality" src="" alt="Modality Artifact">
-                            <div class="evidence-info">
-                                <div class="evidence-title" id="aux2-title">Farneback Optical Flow</div>
-                                <div class="evidence-sub" id="aux2-desc">Inter-frame motion vector continuity tracking velocity jitter & cut-lines.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PDF Certificate Download Action -->
-                    <div style="margin-top:35px; display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:18px 24px; border-radius:14px; border:1px solid rgba(255,255,255,0.06);">
-                        <div>
-                            <div style="font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; color:#fff;">
-                                Certified Forensic PDF Certificate
-                            </div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
-                                Export signed ISO/IEC 27037 documentation with embedded spectral plots and audit chain.
-                            </div>
-                        </div>
-                        <a id="btn-download-cert" href="#" class="btn-pdf" target="_blank">
-                            <span>📄</span> DOWNLOAD COURT CERTIFICATE
+                        <a id="btn-download-cert" href="#" target="_blank" class="flex items-center gap-1 px-4 py-2 bg-cyan-400 text-black rounded hover:bg-cyan-300 transition">
+                            📄 DOWNLOAD COURT CERTIFICATE
                         </a>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
-
     <script>
         const API_BASE = 'http://127.0.0.1:8000';
         let currentModality = 'video';
         let currentInputTab = 'file';
         let selectedFile = null;
-
-        // Health Check
-        async function checkAPIHealth() {
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.getElementById('status-text');
-            try {
-                const res = await fetch(`${API_BASE}/api/v1/health`);
-                if (res.ok) {
-                    statusDot.style.background = 'var(--safe)';
-                    statusText.textContent = 'CORE ONLINE';
-                } else {
-                    throw new Error();
-                }
-            } catch (e) {
-                statusDot.style.background = 'var(--danger)';
-                statusText.textContent = 'CORE OFFLINE';
-            }
+        async function checkAPIHealth(){
+            const dot = document.querySelector('.status-dot');
+            const txt = document.getElementById('status-text');
+            try{
+                const r = await fetch(`${API_BASE}/api/v1/health`);
+                if(r.ok){dot.classList.remove('bg-red-500');dot.classList.add('bg-green-500');txt.textContent='CORE ONLINE';}
+                else throw new Error();
+            }catch{dot.classList.remove('bg-green-500');dot.classList.add('bg-red-500');txt.textContent='CORE OFFLINE';}
         }
-        setInterval(checkAPIHealth, 6000);
+        setInterval(checkAPIHealth,6000);
         checkAPIHealth();
-
-        function setModality(mod) {
-            currentModality = mod;
-            document.getElementById('mod-video').classList.toggle('active', mod === 'video');
-            document.getElementById('mod-doc').classList.toggle('active', mod === 'document');
-            if (mod === 'document') {
-                document.getElementById('platform-select').value = 'device';
+        function setModality(m){
+            currentModality=m;
+            document.getElementById('mod-video').classList.toggle('active', m==='video');
+            document.getElementById('mod-doc').classList.toggle('active', m==='document');
+            if(m==='document') document.getElementById('platform-select').value='device';
+        }
+        function switchInputTab(t){
+            currentInputTab=t;
+            document.getElementById('tab-file').classList.toggle('active', t==='file');
+            document.getElementById('tab-url').classList.toggle('active', t==='url');
+            document.getElementById('file-container').classList.toggle('hidden', t!=='file');
+            document.getElementById('url-container').classList.toggle('hidden', t!=='url');
+        }
+        function handleFileSelect(e){
+            const f=e.target.files[0];
+            if(f){
+                selectedFile=f;
+                document.getElementById('file-selected-name').textContent=`${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+                setModality(f.name.endsWith('.pdf')||f.type.includes('image')?'document':'video');
             }
         }
-
-        function switchInputTab(tab) {
-            currentInputTab = tab;
-            document.getElementById('tab-file').classList.toggle('active', tab === 'file');
-            document.getElementById('tab-url').classList.toggle('active', tab === 'url');
-            document.getElementById('file-container').classList.toggle('hidden', tab !== 'file');
-            document.getElementById('url-container').classList.toggle('hidden', tab !== 'url');
-        }
-
-        function handleFileSelect(evt) {
-            const file = evt.target.files[0];
-            if (file) {
-                selectedFile = file;
-                document.getElementById('file-selected-name').textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-                if (file.name.endsWith('.pdf') || file.type.includes('image') || file.type.includes('pdf')) {
-                    setModality('document');
-                } else {
-                    setModality('video');
-                }
-            }
-        }
-
-        async function executeScan() {
-            const placeholder = document.getElementById('placeholder-text');
-            const actual = document.getElementById('actual-results');
-
-            placeholder.innerHTML = `<div style="font-size:32px; animation:spin 1s infinite linear;">⚡</div><div style="margin-top:15px; font-family:'Space Grotesk',sans-serif; letter-spacing:2px;">DEMUXING BITSTREAM & COMPUTING SHA-256...</div>`;
-            placeholder.classList.remove('hidden');
-            actual.classList.add('hidden');
-
-            try {
-                let resData;
-                if (currentInputTab === 'file' && selectedFile) {
-                    const formData = new FormData();
-                    formData.append('file', selectedFile);
-                    formData.append('platform', document.getElementById('platform-select').value);
-                    formData.append('media_type', currentModality);
-
-                    const resp = await fetch(`${API_BASE}/api/v1/detect/upload`, {
-                        method: 'POST',
-                        body: formData
+        async function executeScan(){
+            const placeholder=document.getElementById('placeholder-text');
+            const actual=document.getElementById('actual-results');
+            placeholder.innerHTML='<div class="animate-spin text-4xl mb-2">⚡</div><div class="text-sm">DEMUXING BITSTREAM & COMPUTING SHA‑256…</div>';
+            placeholder.classList.remove('hidden'); actual.classList.add('hidden');
+            try{
+                let data;
+                if(currentInputTab==='file' && selectedFile){
+                    const fd=new FormData();
+                    fd.append('file',selectedFile);
+                    fd.append('platform',document.getElementById('platform-select').value);
+                    fd.append('media_type',currentModality);
+                    const r=await fetch(`${API_BASE}/api/v1/detect/upload`,{method:'POST',body:fd});
+                    if(!r.ok) throw new Error(await r.text());
+                    data=await r.json();
+                }else{
+                    const url=document.getElementById('url-input').value;
+                    const r=await fetch(`${API_BASE}/api/v1/detect`,{
+                        method:'POST',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({media_hash:'a'.repeat(64),media_url:url,platform:document.getElementById('platform-select').value,media_type:currentModality})
                     });
-                    if (!resp.ok) throw new Error(await resp.text());
-                    resData = await resp.json();
-                } else {
-                    const urlVal = document.getElementById('url-input').value;
-                    const resp = await fetch(`${API_BASE}/api/v1/detect`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            media_hash: 'a'.repeat(64),
-                            media_url: urlVal,
-                            platform: document.getElementById('platform-select').value,
-                            media_type: currentModality
-                        })
-                    });
-                    if (!resp.ok) throw new Error(await resp.text());
-                    resData = await resp.json();
+                    if(!r.ok) throw new Error(await r.text());
+                    data=await r.json();
                 }
-
-                renderForensicResults(resData);
-            } catch (err) {
-                placeholder.innerHTML = `<div style="color:var(--danger); font-size:24px;">❌ Forensic Examination Error</div><div style="font-size:12px; margin-top:8px;">${err.message}</div>`;
+                renderForensicResults(data);
+            }catch(err){
+                placeholder.innerHTML=`<div class="text-red-400 text-2xl mb-2">❌</div><div class="text-sm">${err.message}</div>`;
             }
         }
-
-        function renderForensicResults(data) {
+        function renderForensicResults(d){
             document.getElementById('placeholder-text').classList.add('hidden');
             document.getElementById('actual-results').classList.remove('hidden');
-
-            // Metadata
-            document.getElementById('res-hash').textContent = data.media_hash;
-            document.getElementById('res-id').textContent = `Report ID: ${data.report_id}`;
-            document.getElementById('res-modality-heading').textContent = 
-                data.forensic_modality === 'document' ? 'STATIC DOCUMENT FORENSIC EXAMINATION' : 'DYNAMIC VIDEO FORENSIC EXAMINATION';
-
-            // Verdict and score
-            const score = Math.round(data.sentinels_score);
-            const scoreVal = document.getElementById('score-val');
-            const scoreCircle = document.getElementById('score-circle');
-            const verdictLabel = document.getElementById('verdict-label');
-            scoreVal.textContent = score;
-
-            const isFake = data.verdict === 'synthetic' || data.verdict === 'partial_synthetic';
-            if (isFake) {
-                verdictLabel.textContent = data.verdict === 'partial_synthetic' ? 'PARTIAL TAMPERING' : 'SYNTHETIC / TAMPERED';
-                verdictLabel.className = 'verdict-tag verdict-synthetic';
-                scoreCircle.style.color = 'var(--danger)';
-            } else {
-                verdictLabel.textContent = 'AUTHENTIC';
-                verdictLabel.className = 'verdict-tag verdict-authentic';
-                scoreCircle.style.color = 'var(--safe)';
+            document.getElementById('res-hash').textContent=d.media_hash;
+            document.getElementById('res-id').textContent=`Report ID: ${d.report_id}`;
+            document.getElementById('res-modality-heading').textContent=d.forensic_modality==='document'?'STATIC DOCUMENT FORENSIC EXAMINATION':'DYNAMIC VIDEO FORENSIC EXAMINATION';
+            const score=Math.round(d.sentinels_score||0);
+            document.getElementById('score-val').textContent=score;
+            const isFake=d.verdict==='synthetic'||d.verdict==='partial_synthetic';
+            const verdict=document.getElementById('verdict-label');
+            if(isFake){
+                verdict.textContent=d.verdict==='partial_synthetic'?'PARTIAL TAMPERING':'SYNTHETIC / TAMPERED';
+                verdict.className='px-3 py-1 rounded text-xs font-semibold bg-red-900 text-red-300';
+                document.getElementById('score-circle').style.color='var(--danger)';
+            }else{
+                verdict.textContent='AUTHENTIC';
+                verdict.className='px-3 py-1 rounded text-xs font-semibold bg-green-900 text-green-300';
+                document.getElementById('score-circle').style.color='var(--safe)';
             }
-
-            // Universal Steganalysis Prob
-            const mlConf = Math.round((data.ml_result.confidence || 0) * 100);
-            document.getElementById('metric-steg').textContent = `${mlConf}% Anomaly`;
-
-            // Dynamic Metrics
-            if (data.forensic_modality === 'document' && data.ml_result.document_forensics) {
-                const df = data.ml_result.document_forensics;
-                document.getElementById('metric-2-lbl').textContent = 'Error Level Analysis (ELA)';
-                document.getElementById('metric-2-val').textContent = `${df.ela_score.toFixed(2)} (${df.cluster_count} Clusters)`;
-
-                document.getElementById('metric-3-lbl').textContent = 'PRNU Signature Noise';
-                document.getElementById('metric-3-val').textContent = `${df.prnu_consistency.toFixed(2)} Index`;
-
-                document.getElementById('metric-4-lbl').textContent = 'Layout & OCR Integrity';
-                document.getElementById('metric-4-val').textContent = `${Math.round(df.layout_integrity_score * 100)}% Match`;
-
-                // Card Aux 2 => ELA
-                document.getElementById('aux2-title').textContent = 'Error Level Analysis (ELA)';
-                document.getElementById('aux2-desc').textContent = 'Differential recompression matrix isolating forged signatures and altered text.';
-            } else {
-                const vf = data.ml_result.video_forensics || {};
-                document.getElementById('metric-2-lbl').textContent = 'Spectral Grid Leakage';
-                document.getElementById('metric-2-val').textContent = data.ml_result.frequency.spectral_anomaly_score.toFixed(2);
-
-                document.getElementById('metric-3-lbl').textContent = 'PRNU Camera Sensor';
-                document.getElementById('metric-3-val').textContent = vf.grid_leakage_detected ? 'ANOMALOUS' : 'AUTHENTIC';
-
-                document.getElementById('metric-4-lbl').textContent = 'Farneback Motion Continuity';
-                document.getElementById('metric-4-val').textContent = `${Math.round((vf.motion_continuity_score || 0.95) * 100)}% Coherent`;
-
-                document.getElementById('aux2-title').textContent = 'Farneback Optical Flow';
-                document.getElementById('aux2-desc').textContent = 'Dense inter-frame velocity vector field detecting frame drops & cut lines.';
+            const mlConf=Math.round((d.ml_result.confidence||0)*100);
+            document.getElementById('metric-steg').textContent=`${mlConf}% Anomaly`;
+            if(d.forensic_modality==='document' && d.ml_result.document_forensics){
+                const df=d.ml_result.document_forensics;
+                document.getElementById('metric-2-lbl').textContent='Error Level Analysis (ELA)';
+                document.getElementById('metric-2-val').textContent=`${df.ela_score.toFixed(2)} (${df.cluster_count} Clusters)`;
+                document.getElementById('metric-3-lbl').textContent='PRNU Signature Noise';
+                document.getElementById('metric-3-val').textContent=`${df.prnu_consistency.toFixed(2)} Index`;
+                document.getElementById('metric-4-lbl').textContent='Layout & OCR Integrity';
+                document.getElementById('metric-4-val').textContent=`${Math.round(df.layout_integrity_score*100)}% Match`;
+                document.getElementById('aux2-title').textContent='Error Level Analysis (ELA)';
+                document.getElementById('aux2-desc').textContent='Differential recompression matrix isolating forged signatures and altered text.';
+            }else{
+                const vf=d.ml_result.video_forensics||{};
+                document.getElementById('metric-2-lbl').textContent='Spectral Grid Leakage';
+                document.getElementById('metric-2-val').textContent=d.ml_result.frequency.spectral_anomaly_score.toFixed(2);
+                document.getElementById('metric-3-lbl').textContent='PRNU Camera Sensor';
+                document.getElementById('metric-3-val').textContent=vf.grid_leakage_detected?'ANOMALOUS':'AUTHENTIC';
+                document.getElementById('metric-4-lbl').textContent='Farneback Motion Continuity';
+                document.getElementById('metric-4-val').textContent=`${Math.round((vf.motion_continuity_score||0.95)*100)}% Coherent`;
+                document.getElementById('aux2-title').textContent='Farneback Optical Flow';
+                document.getElementById('aux2-desc').textContent='Dense inter‑frame velocity vector field detecting frame drops & cut lines.';
             }
-
-            // Visual Evidence Images
-            const visuals = data.ml_result.visual_evidence || {};
-            if (visuals.grad_cam_base64) {
-                document.getElementById('img-gradcam').src = `data:image/jpeg;base64,${visuals.grad_cam_base64}`;
-            }
-            if (visuals.spectrum_base64) {
-                document.getElementById('img-spectrum').src = `data:image/jpeg;base64,${visuals.spectrum_base64}`;
-            }
-            if (visuals.ela_base64 && data.forensic_modality === 'document') {
-                document.getElementById('img-modality').src = `data:image/jpeg;base64,${visuals.ela_base64}`;
-            } else if (visuals.flow_base64) {
-                document.getElementById('img-modality').src = `data:image/jpeg;base64,${visuals.flow_base64}`;
-            }
-
-            // Certificate Download URL
-            const certBtn = document.getElementById('btn-download-cert');
-            certBtn.href = `${API_BASE}${data.certificate_url}`;
+            const vis=d.ml_result.visual_evidence||{};
+            if(vis.grad_cam_base64) document.getElementById('img-gradcam').src=`data:image/jpeg;base64,${vis.grad_cam_base64}`;
+            if(vis.spectrum_base64) document.getElementById('img-spectrum').src=`data:image/jpeg;base64,${vis.spectrum_base64}`;
+            if(vis.ela_base64 && d.forensic_modality==='document') document.getElementById('img-modality').src=`data:image/jpeg;base64,${vis.ela_base64}`;
+            else if(vis.flow_base64) document.getElementById('img-modality').src=`data:image/jpeg;base64,${vis.flow_base64}`;
+            document.getElementById('btn-download-cert').href=`${API_BASE}${d.certificate_url}`;
         }
     </script>
 </body>
