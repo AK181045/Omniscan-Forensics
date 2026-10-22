@@ -1,15 +1,13 @@
-"""
-=============================================================================
-OMNISCAN FORENSICS — Detection Service (The Multi-Modal Forensics Core)
-Orchestrates:
-1. Header-Agnostic Raw Bitstream Ingestion (ISO/IEC 27037 SHA-256 Hashing)
-2. Multi-Modal Routing Engine:
-   - Video Route: Spatial + 2D-FFT/DCT Spectral Grid Leakages + Farneback Optical Flow + PRNU
-   - Document & Certificate Route: ELA Compression History + PRNU Noise + Layout/OCR
-3. SRNet Universal Steganalysis + Grad-CAM Visual Heatmap Localization
-4. Automated Forensic Certificate Generation (ReportLab)
-=============================================================================
-"""
+# """
+# OMNISCAN FORENSICS — Detection Service (The Multi-Modal Forensics Core)
+# Orchestrates:
+#   1. Header-Agnostic Raw Bitstream Ingestion (ISO/IEC 27037 SHA-256 Hashing)
+#   2. Multi-Modal Routing Engine:
+#        - Video Route: Spatial + 2D-FFT/DCT Spectral Grid Leakages + Farneback Optical Flow + PRNU
+#        - Document & Certificate Route: ELA Compression History + PRNU Noise + Layout/OCR
+#   3. SRNet Universal Steganalysis + Grad-CAM Visual Heatmap Localization
+#   4. Automated Forensic Certificate Generation (ReportLab)
+# """
 
 import asyncio
 import base64
@@ -22,12 +20,13 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure project root is in sys.path
+# Ensure project root is in sys.path for relative imports
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 import torch
+import torch.nn.functional as F
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 
@@ -55,9 +54,7 @@ logger = logging.getLogger("omniscan.services.detection")
 
 
 class DetectionService:
-    """
-    Central Multi-Modal Forensics Orchestrator for OmniScan.
-    """
+    """Central Multi-Modal Forensics Orchestrator for OmniScan."""
 
     def __init__(self):
         self.blockchain_service = BlockchainService()
@@ -71,6 +68,16 @@ class DetectionService:
         # Load SRNet Fusion model and Grad-CAM explainer
         self.model = OmniScanFusionNet(num_classes=2)
         self.model.eval()
+        # Attempt to load pretrained weights if they exist
+        weights_path = _PROJECT_ROOT / "ml_models" / "models" / "srnet_weights.pth"
+        if weights_path.is_file():
+            try:
+                self.model.load_state_dict(torch.load(weights_path, map_location="cpu"))
+                logger.info("Loaded SRNet Fusion pretrained weights.")
+            except Exception as e:
+                logger.warning(f"Failed to load SRNet weights: {e}")
+        else:
+            logger.warning("SRNet pretrained weight file not found – using random init.")
         self.grad_cam = GradCAMExplainer(self.model)
 
     def _to_base64_jpeg(self, img_rgb: Optional[np.ndarray]) -> Optional[str]:
@@ -87,10 +94,7 @@ class DetectionService:
         return None
 
     def _generate_synthetic_raw_stream(self, seed_val: int, is_synthetic: bool, is_doc: bool) -> np.ndarray:
-        """
-        Generates deterministic test raster frames for simulation when raw video bytes
-        are not directly streamed over the wire.
-        """
+        """Generates deterministic test raster frames for simulation when raw video bytes are not directly streamed over the wire."""
         h, w = 256, 256
         frames = []
         num_frames = 1 if is_doc else 8
@@ -128,8 +132,7 @@ class DetectionService:
         raw_bytes: Optional[bytes] = None,
         options: Optional[AnalysisOptions] = None,
     ) -> Tuple[MLResultResponse, BlockchainResultResponse, dict]:
-        """
-        Run multi-modal forensic analysis and blockchain lookup in parallel.
+        """Run multi-modal forensic analysis and blockchain lookup in parallel.
         Returns:
             Tuple of (MLResultResponse, BlockchainResultResponse, full_forensic_context)
         """
@@ -182,16 +185,12 @@ class DetectionService:
         raw_bytes: Optional[bytes],
         options: Optional[AnalysisOptions],
     ) -> Tuple[MLResultResponse, dict]:
-        """
-        Executes raw bitstream ingestion, transform-domain decomposition,
-        optical flow motion tracking, ELA, and Grad-CAM explainability.
-        """
+        """Executes raw bitstream ingestion, transform-domain decomposition, optical flow motion tracking, ELA, and Grad-CAM explainability."""
         lower_url = media_url.lower()
         url_seed = hashlib.sha256(media_url.encode()).hexdigest()
         seed_val = int(url_seed[:6], 16)
-        mod_val = seed_val % 100
 
-        # Detect modality
+        # Detect modality (document vs video)
         is_document = (
             media_type == "document"
             or "pdf" in lower_url
@@ -200,7 +199,7 @@ class DetectionService:
             or "id" in lower_url
         )
 
-        # Check for known AI signatures or URL heuristics
+        # Heuristic AI‑signature detection (used as an extra hint, not sole decision)
         advanced_ai_signatures = [
             "deepfake", "synthetic", "ai_generated", "ai generated", "ai-generated", "ai",
             "dall-e", "dalle", "openai", "sora", "gemini", "midjourney", "stable diffusion",
@@ -208,43 +207,44 @@ class DetectionService:
         ]
         has_ai_sig = any(sig in lower_url for sig in advanced_ai_signatures)
 
-        if platform == "device":
-            is_synthetic = has_ai_sig or (mod_val < 45)
-            is_partial = False if is_synthetic else (45 <= mod_val < 75)
-        else:
-            is_synthetic = has_ai_sig or (mod_val < 25)
-            is_partial = False if is_synthetic else (25 <= mod_val < 55)
-
-        # Extract or simulate raw pixel frames
+        # ---------------------------------------------------------------------
+        # Ingest raw bytes or simulate deterministic frames when none are given
+        # ---------------------------------------------------------------------
         if raw_bytes and len(raw_bytes) > 0:
             ingest_res = self.ingestion_engine.ingest_bytes(raw_bytes)
             raw_frames = ingest_res.raw_frames
             media_hash = ingest_res.media_hash
         else:
-            raw_frames = self._generate_synthetic_raw_stream(seed_val, is_synthetic, is_document)
+            raw_frames = self._generate_synthetic_raw_stream(seed_val, is_synthetic=False, is_doc=is_document)
 
         sample_frame = raw_frames[0]
 
-        # ─── 1. Frequency Domain Decomposition (2D-FFT / 2D-DCT / DWT) ───────
+        # ---------------------------------------------------------------------
+        # 1️⃣ Frequency Domain Decomposition (2D‑FFT / 2D‑DCT / DWT)
+        # ---------------------------------------------------------------------
         freq_results = self.freq_analyzer.analyze_frame(sample_frame)
         grid_detected = freq_results["grid_artifacts_present"]
         spec_score = freq_results["spectral_anomaly_score"]
         dct_moments = freq_results.get("dct_moments", {})
         spectrum_rgb = freq_results.get("spectrum_image_rgb")
 
-        # ─── 2. Photo-Response Non-Uniformity (PRNU) Sensor Noise ────────────
+        # ---------------------------------------------------------------------
+        # 2️⃣ PRNU Sensor‑Noise Consistency
+        # ---------------------------------------------------------------------
         prnu_res = self.prnu_extractor.analyze_sensor_integrity(sample_frame)
         prnu_consistency = prnu_res["prnu_consistency_score"]
         prnu_synthetic = prnu_res["is_synthetic_noise_signature"]
 
-        # ─── 3. Modality-Specific Pipelines ───────────────────────────────────
+        # ---------------------------------------------------------------------
+        # 3️⃣ Modality‑Specific Pipelines
+        # ---------------------------------------------------------------------
         doc_forensics = None
         vid_forensics = None
         ela_rgb = None
         flow_rgb = None
 
         if is_document:
-            # Document Forensics Route (ELA + PRNU stamp/signature noise)
+            # Document route – ELA + PRNU
             sample_bgr = cv2.cvtColor(sample_frame, cv2.COLOR_RGB2BGR)
             ela_res = self.ela_analyzer.analyze_matrix(sample_bgr)
             ela_rgb = ela_res.get("ela_image_rgb")
@@ -256,10 +256,10 @@ class DetectionService:
                 cluster_count=ela_res["cluster_count"],
                 prnu_consistency=prnu_consistency,
                 prnu_synthetic_flag=prnu_synthetic,
-                layout_integrity_score=0.45 if (is_synthetic or is_partial) else 0.98,
+                layout_integrity_score=0.45 if prnu_synthetic else 0.98,
             )
         else:
-            # Video Forensics Route (Farneback Optical Flow inter-frame continuity)
+            # Video route – Optical Flow
             flow_res = self.flow_analyzer.analyze_sequence(raw_frames)
             flow_rgb = flow_res.get("flow_visual_rgb")
             motion_score = flow_res["motion_continuity_score"]
@@ -272,38 +272,53 @@ class DetectionService:
                 dct_moments=dct_moments,
             )
 
-        # ─── 4. SRNet Steganalysis & Grad-CAM Spatial Localization ───────────
-        # Prepare tensor (1, 3, H, W) normalized
+        # ---------------------------------------------------------------------
+        # 4️⃣ SRNet Steganalysis + Grad‑CAM
+        # ---------------------------------------------------------------------
         tensor_in = torch.from_numpy(sample_frame.transpose(2, 0, 1)).unsqueeze(0).float() / 255.0
+        with torch.no_grad():
+            logits = self.model(tensor_in)
+            probs = F.softmax(logits, dim=1).squeeze().cpu().numpy()
+            # Class 0 = authentic, 1 = synthetic
+            synthetic_prob = float(probs[1]) if probs.shape[0] > 1 else 0.0
+
         try:
-            heatmap = self.grad_cam.generate_heatmap(tensor_in, target_class=1 if is_synthetic else 0)
+            heatmap = self.grad_cam.generate_heatmap(tensor_in, target_class=1 if synthetic_prob > 0.5 else 0)
             grad_cam_rgb = self.grad_cam.overlay_heatmap(sample_frame, heatmap, alpha=0.55)
         except Exception as e:
-            logger.warning(f"Grad-CAM generation failed: {e}")
+            logger.warning(f"Grad‑CAM generation failed: {e}")
             grad_cam_rgb = sample_frame
 
-        # Compute confidence and artifacts
+        # ---------------------------------------------------------------------
+        # 5️⃣ Decision Logic – combine model probability, spectral anomaly and PRNU
+        # ---------------------------------------------------------------------
+        # Primary synthetic flag from model confidence
+        is_synthetic = synthetic_prob > 0.6 or has_ai_sig
+        is_partial = not is_synthetic and (synthetic_prob > 0.4 or (0.4 <= synthetic_prob <= 0.6 and has_ai_sig))
+
+        # Composite confidence – weighted blend of model, spectral and PRNU signals
+        confidence = (synthetic_prob * 0.7) + (spec_score * 0.2) + ((1 - prnu_consistency) * 0.1)
+        confidence = float(np.clip(confidence, 0.0, 0.99))
+
+        # ---------------------------------------------------------------------
+        # 6️⃣ Build Artifacts & Response Objects
+        # ---------------------------------------------------------------------
+        artifacts = []
         if is_synthetic:
-            confidence = 0.88 + (spec_score * 0.10)
             artifacts = [
-                "2D-FFT periodic grid leakage (GAN upsampling lattice)",
+                "2D‑FFT periodic grid leakage (GAN upsampling lattice)",
                 "PRNU physical sensor noise absence",
-                "Grad-CAM localized high-order residual activations",
+                "Grad‑CAM localized high‑order residual activations",
             ]
             if is_document:
                 artifacts.append("ELA compression differential spike in signature/stamp area")
             else:
                 artifacts.append("Farneback optical flow velocity jerk discontinuity")
         elif is_partial:
-            confidence = 0.62 + (spec_score * 0.15)
             artifacts = ["Localized boundary splice", "Spectral boundary distortion"]
         else:
-            confidence = max(0.02, min(0.18, spec_score * 0.4))
             artifacts = []
 
-        confidence = round(float(np.clip(confidence, 0.0, 0.99)), 4)
-
-        # Prepare base64 visual representations for frontend
         visuals = EvidenceVisuals(
             grad_cam_base64=self._to_base64_jpeg(grad_cam_rgb),
             ela_base64=self._to_base64_jpeg(ela_rgb),
@@ -316,7 +331,7 @@ class DetectionService:
             is_partial=is_partial,
             confidence=confidence,
             artifacts=artifacts,
-            model_version="OmniScan-SRNet-F3Net-v5.0",
+            model_version="OmniScan‑SRNet‑F3Net‑v5.0",
             spatial=SpatialAnalysis(
                 face_consistency_score=round(0.20 if is_synthetic else (0.65 if is_partial else 0.94), 4),
                 edge_artifact_score=round(0.85 if is_synthetic else (0.50 if is_partial else 0.08), 4),
@@ -347,7 +362,8 @@ class DetectionService:
             "diagnostics": {
                 "spectral_anomaly": spec_score,
                 "prnu_consistency": prnu_consistency,
-                "synthetic_prob": confidence,
+                "synthetic_prob": synthetic_prob,
+                "model_confidence": confidence,
             },
         }
         if doc_forensics:

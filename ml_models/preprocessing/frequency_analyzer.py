@@ -186,6 +186,7 @@ class FrequencyAnalyzer:
         return {
             "spectral_anomaly_score": anomaly_score,
             "grid_artifacts_present": grid_detected,
+            "ghosting_detected": grid_detected,
             "fft_metrics": grid_details,
             "dct_moments": moments,
             "dwt_analysis": dwt_bands,
@@ -202,6 +203,7 @@ class FrequencyAnalyzer:
         return {
             "spectral_anomaly_score": round(float(avg_anomaly), 4),
             "grid_artifacts_present": grid_count > len(frames) * 0.25,
+            "ghosting_detected": grid_count > len(frames) * 0.25,
             "grid_frame_ratio": round(grid_count / max(len(frames), 1), 3),
             "dct_moments": sample_frame_res.get("dct_moments", {}),
             "dwt_analysis": sample_frame_res.get("dwt_analysis", {}),

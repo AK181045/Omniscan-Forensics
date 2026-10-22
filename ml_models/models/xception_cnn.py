@@ -6,7 +6,7 @@ Input: 299x299 pixel frames
 
 import torch
 import torch.nn as nn
-import torchvision.models as models
+# import torchvision.models as models  # Removed for compatibility
 
 
 class XceptionBlock(nn.Module):
