@@ -63,10 +63,10 @@ async def lifespan(app: FastAPI):
 # Application Factory
 # =============================================================================
 app = FastAPI(
-    title="Sentinels of Integrity API",
+    title="OmniScan Forensics API",
     description=(
-        "AI-Powered Truth Guard — Real-time deepfake detection and media "
-        "provenance verification via ML analysis and blockchain integrity hashing."
+        "AI-Powered Court-Admissible Digital Forensics Platform for Deepfake and "
+        "Document Tampering Detection — ISO/IEC 27037 Compliant."
     ),
     version=settings.API_VERSION,
     lifespan=lifespan,

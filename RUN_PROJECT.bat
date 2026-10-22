@@ -1,9 +1,10 @@
 @echo off
-title Sentinels of Integrity - API Server
-color 0A
+title OmniScan - AI Court-Admissible Forensics API
+color 0B
 
 echo  ================================================================
-echo    SENTINELS OF INTEGRITY  ^|  LAUNCHER
+echo    OMNISCAN FORENSICS  ^|  AI COURT-ADMISSIBLE FORENSICS ENGINE
+echo    Dr. D. Y. Patil College of Engineering and Innovation
 echo  ================================================================
 echo.
 
