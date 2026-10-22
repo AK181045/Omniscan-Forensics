@@ -133,6 +133,32 @@ class TemporalAnalysis(BaseModel):
 class FrequencyAnalysis(BaseModel):
     spectral_anomaly_score: float = Field(ge=0.0, le=1.0)
     ghosting_detected: bool = False
+    grid_leakage_detected: bool = False
+    dct_moments: dict = Field(default_factory=dict)
+
+
+class DocumentForensicAnalysis(BaseModel):
+    ela_score: float = Field(ge=0.0, le=1.0)
+    ela_anomaly_detected: bool = False
+    cluster_count: int = 0
+    prnu_consistency: float = Field(ge=0.0, le=1.0)
+    prnu_synthetic_flag: bool = False
+    layout_integrity_score: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
+class VideoForensicAnalysis(BaseModel):
+    motion_continuity_score: float = Field(ge=0.0, le=1.0)
+    dropped_or_frozen_frames: int = 0
+    optical_flow_jerk: float = 0.0
+    grid_leakage_detected: bool = False
+    dct_moments: dict = Field(default_factory=dict)
+
+
+class EvidenceVisuals(BaseModel):
+    grad_cam_base64: Optional[str] = None
+    ela_base64: Optional[str] = None
+    spectrum_base64: Optional[str] = None
+    flow_base64: Optional[str] = None
 
 
 class MLResultResponse(BaseModel):
@@ -141,10 +167,13 @@ class MLResultResponse(BaseModel):
     is_partial: bool = False
     confidence: float = Field(ge=0.0, le=1.0)
     artifacts: list[str] = Field(default_factory=list)
-    model_version: str = "sentinel-core-v4.0-pixel-aware"
+    model_version: str = "OmniScan-SRNet-F3Net-v5.0"
     spatial: Optional[SpatialAnalysis] = None
     temporal: Optional[TemporalAnalysis] = None
     frequency: Optional[FrequencyAnalysis] = None
+    document_forensics: Optional[DocumentForensicAnalysis] = None
+    video_forensics: Optional[VideoForensicAnalysis] = None
+    visual_evidence: Optional[EvidenceVisuals] = None
 
 
 # =============================================================================
@@ -191,6 +220,9 @@ class MediaAnalysisResponse(BaseModel):
     blockchain_result: BlockchainResultResponse
     status: AnalysisStatus
     analyzed_at: str
+    forensic_modality: str = "video"
+    certificate_url: Optional[str] = None
+    iso_27037_compliant: bool = True
 
 
 class TrustReportSummary(BaseModel):

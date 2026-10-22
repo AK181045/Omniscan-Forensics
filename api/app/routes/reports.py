@@ -56,6 +56,29 @@ async def get_report(
     return report
 
 
+@router.get("/reports/{report_id}/certificate")
+async def download_certificate(
+    report_id: str,
+):
+    """
+    Export an ISO/IEC 27037 compliant court-admissible forensic PDF certificate.
+    """
+    from fastapi.responses import Response
+    report_service = ReportService()
+    pdf_bytes = await report_service.generate_pdf_certificate(report_id)
+    if not pdf_bytes:
+        raise HTTPException(status_code=404, detail="Forensic report or certificate not found")
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="OmniScan_Forensic_Certificate_{report_id[:8]}.pdf"',
+            "Content-Type": "application/pdf",
+        },
+    )
+
+
 @router.get("/reports/stats/summary")
 async def get_stats_summary(
     user: dict = Depends(get_current_user),

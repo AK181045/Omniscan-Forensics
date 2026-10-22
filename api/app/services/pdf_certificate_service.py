@@ -16,6 +16,7 @@ import io
 import os
 import cv2
 import numpy as np
+from typing import Optional
 from datetime import datetime, timezone
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors

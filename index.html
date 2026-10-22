@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinels of Gravity | Welcome</title>
+    <title>OmniScan | AI-Powered Court-Admissible Digital Forensics</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-base: #02040a;
             --bg-grad-1: #080d1a;
             --bg-grad-2: #040710;
-            --glass: rgba(15, 20, 30, 0.4);
+            --glass: rgba(15, 20, 30, 0.45);
             --glass-border: rgba(255, 255, 255, 0.08);
             --accent: #00f2ff;
             --accent-glow: #0066ff;
             --safe: #00ff88;
+            --warn: #ffbb00;
+            --danger: #ff3344;
             --text-main: #f0f4f8;
             --text-muted: #8a9bb3;
         }
@@ -39,7 +41,6 @@
             overflow-x: hidden;
         }
 
-        /* Abstract Background Grid */
         body::before {
             content: "";
             position: fixed;
@@ -53,19 +54,35 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
             margin: 0 auto;
-            padding: 80px 20px 40px;
+            padding: 60px 20px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
         }
 
+        .badge-academic {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            background: rgba(0, 242, 255, 0.08);
+            border: 1px solid rgba(0, 242, 255, 0.25);
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+
         .hero-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 72px;
+            font-size: 64px;
             font-weight: 700;
             letter-spacing: -1px;
             margin: 0;
@@ -78,10 +95,10 @@
         }
 
         .hero-subtitle {
-            font-size: 18px;
+            font-size: 17px;
             color: var(--text-muted);
-            max-width: 650px;
-            margin: 20px auto 50px;
+            max-width: 750px;
+            margin: 18px auto 40px;
             line-height: 1.6;
             animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -89,9 +106,9 @@
         .features {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
+            gap: 24px;
             width: 100%;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
             animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -110,40 +127,36 @@
 
         .feature-card:hover {
             transform: translateY(-5px);
-            background: rgba(0, 242, 255, 0.03);
+            background: rgba(0, 242, 255, 0.04);
             border-color: rgba(0, 242, 255, 0.3);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,242,255,0.05);
         }
 
         .feature-icon {
             font-size: 32px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: inline-block;
-            background: linear-gradient(135deg, var(--accent), var(--accent-glow));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .feature-title {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 10px;
             color: #fff;
         }
 
         .feature-desc {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .launch-btn {
             display: inline-block;
-            padding: 20px 50px;
+            padding: 18px 45px;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             letter-spacing: 2px;
             color: #000;
@@ -153,78 +166,98 @@
             box-shadow: 0 10px 30px rgba(0, 102, 255, 0.4), inset 0 2px 0 rgba(255,255,255,0.4);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             animation: fadeInUp 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .launch-btn::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-            transition: all 0.5s;
-        }
-
-        .launch-btn:hover::after {
-            left: 200%;
         }
 
         .launch-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 15px 40px rgba(0, 102, 255, 0.6), inset 0 2px 0 rgba(255,255,255,0.4);
-            color: #000;
         }
 
-        .dev-info {
-            margin-top: auto;
-            margin-bottom: 30px;
-            padding: 25px 40px;
-            background: rgba(0,0,0,0.5);
+        .academic-panel {
+            width: 100%;
+            max-width: 1060px;
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 2s ease-out;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .dev-col {
+            padding: 25px 35px;
+            margin-top: 50px;
             display: flex;
             flex-direction: column;
+            gap: 15px;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+        }
+
+        .academic-heading {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 10px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
             text-align: left;
         }
 
-        .dev-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent);
-            opacity: 0.8;
-            margin-bottom: 5px;
-            font-weight: 600;
+        .team-member {
+            background: rgba(255,255,255,0.02);
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .dev-value {
+        .member-role {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .member-name {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
+            color: #fff;
+            margin-top: 3px;
+        }
+
+        .member-prn {
+            font-size: 11px;
+            color: var(--accent);
+            opacity: 0.8;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+
+        .guidance-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.06);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .guidance-bar strong {
             color: #fff;
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Abstract glowing orb */
         .glow-orb {
             position: absolute;
             width: 600px;
@@ -236,156 +269,84 @@
             z-index: -1;
             pointer-events: none;
         }
-
-        .hero-logo {
-            width: 100%;
-            max-width: 450px;
-            margin-bottom: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 242, 255, 0.15);
-            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .hero-logo:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(0, 242, 255, 0.3);
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
     <div class="glow-orb"></div>
     <div class="container">
         
-        <!-- Add your logo image here and name it logo.jpg or logo.png to show up automatically! -->
-        <img src="logo.jpg" alt="Sentinels of Gravity Logo" class="hero-logo" onerror="this.src='logo.png'; this.onerror=function(){this.style.display='none';};">
-        
-        <h1 class="hero-title" style="display: none;">Sentinels of Gravity</h1>
-        <p class="hero-subtitle">The next-generation cybersecurity platform designed to authenticate digital media. We utilize advanced spatial-temporal deep learning and live heuristic web scraping to detect AI-generated video and image manipulations across the internet.</p>
-        
+        <div class="badge-academic">
+            <span>🏛️ Dr. D. Y. Patil College of Engineering & Innovation, Varale, Talegaon, Pune</span>
+        </div>
+
+        <h1 class="hero-title">OmniScan Forensics</h1>
+        <p class="hero-subtitle">
+            AI-Powered Court-Admissible Digital Forensics Platform for Deepfake and Document Tampering Detection.
+            Operating on Universal (Blind) Steganalysis, raw pixel extraction, transform-domain spectral decomposition,
+            and ISO/IEC 27037 chain-of-custody compliance.
+        </p>
+
         <div class="features">
             <div class="feature-card">
                 <div class="feature-icon">🛡️</div>
-                <div class="feature-title">Deep AI Analysis</div>
-                <div class="feature-desc">Analyzes media across temporal and spatial domains to identify microscopic synthetic artifacts and facial warping.</div>
+                <div class="feature-title">Header-Agnostic Ingestion</div>
+                <div class="feature-desc">
+                    Demuxes raw pixel matrices directly from input bitstreams using decoupled FFmpeg & OpenCV. 
+                    Fully immune to spoofed, stripped, or re-encoded container metadata.
+                </div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">🔍</div>
-                <div class="feature-title">Live Web Scraping</div>
-                <div class="feature-desc">Dynamically fetches and scans internet links in real-time, instantly extracting known AI generation patterns.</div>
+                <div class="feature-icon">🔬</div>
+                <div class="feature-title">Multi-Modal Forensics Engine</div>
+                <div class="feature-desc">
+                    Dual routes: Dynamic Video (2D-FFT/DCT grid leakages, Farneback Optical Flow) and 
+                    Static Documents/Certificates (Error Level Analysis ELA, PRNU sensor noise).
+                </div>
             </div>
             <div class="feature-card">
-                <div class="feature-icon">⛓️</div>
-                <div class="feature-title">Web3 Provenance</div>
-                <div class="feature-desc">Simulated integration with blockchain ledgers to securely confirm cryptographic authenticity signatures.</div>
+                <div class="feature-icon">⚖️</div>
+                <div class="feature-title">ISO/IEC 27037 Admissibility</div>
+                <div class="feature-desc">
+                    Generates immutable SHA-256 evidence logs upon upload, explainable Grad-CAM spatial heatmaps, 
+                    and downloadable certified legal PDF reports via ReportLab.
+                </div>
             </div>
         </div>
 
-        <a href="visual_demo.html" class="launch-btn" id="launch-btn">DEPLOY SCANNER UI</a>
+        <a href="visual_demo.html" class="launch-btn" id="launch-btn">LAUNCH FORENSIC SCANNER</a>
 
+        <div class="academic-panel">
+            <div class="academic-heading">
+                Final Year B.E. Capstone Research Project • Academic Year 2026-2027
+            </div>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-role">Team Leader</div>
+                    <div class="member-name">Anil Balwan Khichar</div>
+                    <div class="member-prn">PRN: 72342233J</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-role">Team Member</div>
+                    <div class="member-name">Tanpure Siddhi Suresh</div>
+                    <div class="member-prn">PRN: 72342426J</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-role">Team Member</div>
+                    <div class="member-name">Bhusari Suvarna Ganesh</div>
+                    <div class="member-prn">PRN: 72342253C</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-role">Team Member</div>
+                    <div class="member-name">Bhakti Bibhishan Bhoskar</div>
+                    <div class="member-prn">PRN: 72455504J</div>
+                </div>
+            </div>
+            <div class="guidance-bar">
+                <span><b>Under Guidance of:</b> Dr. Suresh Mali, Director (DYPCOEI)</span>
+                <span><b>Department:</b> Computer Engineering</span>
+                <span><b>Standards:</b> ISO/IEC 27037 Digital Evidence Admissibility</span>
+            </div>
+        </div>
     </div>
-
-    <div class="dev-info">
-        <div class="dev-col">
-            <span class="dev-label">Developed By</span>
-            <span class="dev-value">Anil Khichar</span>
-        </div>
-        <div class="dev-col">
-            <span class="dev-label">Position</span>
-            <span class="dev-value">Security Analyst</span>
-        </div>
-        <div class="dev-col">
-            <span class="dev-label">Contact</span>
-            <span class="dev-value">+91 9049069577</span>
-        </div>
-        <div class="dev-col">
-            <span class="dev-label">Email</span>
-            <span class="dev-value">akhichar18@gmail.com</span>
-        </div>
-        <!-- API status pill -->
-        <div class="dev-col" style="margin-left:auto;">
-            <span class="dev-label">Backend</span>
-            <span class="dev-value" id="home-api-dot" style="display:flex;align-items:center;gap:8px;">
-                <span id="home-dot" style="width:10px;height:10px;border-radius:50%;background:#ffbb00;box-shadow:0 0 8px #ffbb00;display:inline-block;transition:all 0.4s;"></span>
-                <span id="home-status" style="font-size:13px;transition:all 0.4s;">CONNECTING</span>
-            </span>
-        </div>
-    </div>
-
-    <!-- ── API Offline Banner ─────────────────────────────────────────────── -->
-    <div id="api-banner" style="
-        position:fixed; bottom:0; left:0; right:0;
-        background:linear-gradient(90deg,rgba(255,51,68,0.12),rgba(255,187,0,0.08));
-        border-top:1px solid rgba(255,187,0,0.3);
-        padding:14px 30px;
-        display:flex; align-items:center; justify-content:center; gap:20px;
-        backdrop-filter:blur(10px);
-        z-index:999;
-        font-family:'Inter',sans-serif;
-        font-size:14px;
-        transition:transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.5s;
-    ">
-        <span style="font-size:20px;">⚡</span>
-        <span style="color:#fff;">
-            <strong style="color:#ffbb00;">API not started.</strong>
-            Double-click <code style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:6px;color:#00f2ff;">RUN_PROJECT.bat</code>
-            to launch everything automatically.
-        </span>
-        <span id="banner-spinner" style="color:#ffbb00;font-size:13px;opacity:0.8;">Checking every 5s...</span>
-    </div>
-
-    <script>
-        // ── API Status Watcher ────────────────────────────────────────────────
-        const API_BASE = 'http://127.0.0.1:8000';
-        let _on = false, _timer = null;
-
-        async function watchAPI() {
-            const dot = document.getElementById('home-dot');
-            const txt = document.getElementById('home-status');
-            const banner = document.getElementById('api-banner');
-
-            try {
-                const ctrl = new AbortController();
-                setTimeout(() => ctrl.abort(), 4000);
-                const r = await fetch(`${API_BASE}/api/v1/health`, { signal: ctrl.signal });
-                if (!r.ok) throw new Error();
-
-                // ── ONLINE ──
-                dot.style.background = '#00ff88';
-                dot.style.boxShadow = '0 0 10px #00ff88';
-                txt.textContent = 'ONLINE';
-                txt.style.color = '#00ff88';
-
-                if (!_on) {
-                    // Slide banner out
-                    banner.style.transform = 'translateY(100%)';
-                    banner.style.opacity = '0';
-                    setTimeout(() => banner.style.display = 'none', 500);
-                    _on = true;
-                }
-            } catch (e) {
-                // ── OFFLINE ──
-                dot.style.background = '#ff3344';
-                dot.style.boxShadow = '0 0 10px #ff3344';
-                txt.textContent = 'OFFLINE';
-                txt.style.color = '#ff3344';
-                banner.style.display = 'flex';
-                banner.style.transform = '';
-                banner.style.opacity = '1';
-                _on = false;
-            }
-
-            clearTimeout(_timer);
-            _timer = setTimeout(watchAPI, _on ? 15000 : 5000);
-        }
-
-        window.addEventListener('load', watchAPI);
-    </script>
 </body>
 </html>
-
