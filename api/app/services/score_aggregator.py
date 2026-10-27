@@ -67,7 +67,7 @@ class ScoreAggregator:
             has_anomalies = True
 
         # Weight adjustments based on core analysis
-        if ml_result.is_synthetic:
+        if ml_result.is_synthetic and ml_result.confidence > 0.7:
             final_score = min(final_score, 35.0)
         elif is_partial:
             final_score = min(max(final_score, 45.0), 65.0)

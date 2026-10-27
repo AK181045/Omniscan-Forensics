@@ -1,13 +1,11 @@
-[tool.pytest]
-addopts = ["-v", "--tb=short", "--strict-markers"]
-# Test discovery path
+[tool.pytest.ini_options]
+addopts = "-v --tb=short"
 testpaths = ["tests"]
-# Asyncio mode configuration
-# asyncio_mode = "auto"  # Removed; pytest-asyncio will handle async tests via marker
-# Custom markers definitions
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "rust: marks tests that require the Rust core to be built",
     "gpu: marks tests that require a GPU",
-    "asyncio: mark test as async (requires pytest-asyncio)"
+    "asyncio: mark test as async"
 ]

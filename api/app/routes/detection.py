@@ -45,14 +45,18 @@ async def detect_media(
     try:
         detection_service = DetectionService()
 
-        # Run multi-modal forensics and blockchain lookup in parallel
-        ml_result, blockchain_result, forensic_ctx = await detection_service.analyze(
+        analysis_res = await detection_service.analyze(
             media_hash=request.media_hash,
             media_url=str(request.media_url),
             platform=request.platform.value if hasattr(request.platform, "value") else str(request.platform),
             media_type=request.media_type.value if hasattr(request.media_type, "value") else str(request.media_type),
             options=request.options,
         )
+        if len(analysis_res) >= 3:
+            ml_result, blockchain_result, forensic_ctx = analysis_res[0], analysis_res[1], analysis_res[2]
+        else:
+            ml_result, blockchain_result = analysis_res[0], analysis_res[1]
+            forensic_ctx = getattr(analysis_res, "forensic_ctx", {})
 
         # Aggregate into Sentinels / OmniScan Trust Score
         aggregator = ScoreAggregator()
@@ -129,13 +133,18 @@ async def detect_uploaded_file(
         media_hash = detection_service.ingestion_engine.compute_sha256(raw_bytes)
         virtual_url = f"device://{file.filename}"
 
-        ml_result, blockchain_result, forensic_ctx = await detection_service.analyze(
+        analysis_res = await detection_service.analyze(
             media_hash=media_hash,
             media_url=virtual_url,
             platform=platform,
             media_type=media_type,
             raw_bytes=raw_bytes,
         )
+        if len(analysis_res) >= 3:
+            ml_result, blockchain_result, forensic_ctx = analysis_res[0], analysis_res[1], analysis_res[2]
+        else:
+            ml_result, blockchain_result = analysis_res[0], analysis_res[1]
+            forensic_ctx = getattr(analysis_res, "forensic_ctx", {})
 
         aggregator = ScoreAggregator()
         sentinels_score, verdict = aggregator.compute_score(ml_result, blockchain_result)

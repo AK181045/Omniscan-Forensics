@@ -18,7 +18,7 @@ import logging
 import time
 from typing import Optional
 
-from app.models.schemas import BlockchainVerificationResponse, EditRecord
+from api.app.models.schemas import BlockchainVerificationResponse, EditRecord
 
 logger = logging.getLogger("sentinels.services.blockchain")
 
@@ -34,12 +34,9 @@ class BlockchainService:
     - Edit history retrieval
     """
 
+    _registry: dict = {}
+
     def __init__(self):
-        # TODO: Initialize Web3 provider
-        # from web3 import Web3
-        # self.w3 = Web3(Web3.HTTPProvider(settings.BLOCKCHAIN_RPC_URL))
-        # self.integrity_contract = self.w3.eth.contract(address=..., abi=...)
-        # self.registry_contract = self.w3.eth.contract(address=..., abi=...)
         pass
 
     async def verify_hash(
@@ -62,22 +59,14 @@ class BlockchainService:
         start_time = time.time()
         logger.info(f"Blockchain verification | hash={content_hash[:16]}...")
 
-        # TODO: Replace with actual contract calls:
-        # is_registered = await self._call_contract(
-        #     self.integrity_contract.functions.isRegistered(
-        #         bytes.fromhex(content_hash)
-        #     )
-        # )
+        is_registered = content_hash in self._registry
+        reg_info = self._registry.get(content_hash, {})
 
-        # Mock response for development
-        # Randomly register content based on the hash string to make demo diverse
-        is_registered = any(c in content_hash[0:2] for c in ['a', 'c', 'e', '0', '2', '4'])
-        
-        author = "Sentinels Validator #7" if is_registered else None
-        registration_tx = f"0x{content_hash[:32]}...{content_hash[-8:]}" if is_registered else None
+        author = reg_info.get("author") if is_registered else None
+        registration_tx = reg_info.get("tx") if is_registered else None
         edit_history = [
             EditRecord(
-                editor="0xCreator...",
+                editor=author or "0xCreator...",
                 edit_hash=content_hash,
                 timestamp=str(time.time() - 86400),
                 description="Registered"
@@ -126,16 +115,13 @@ class BlockchainService:
             f"creator={creator_address[:10]}..."
         )
 
-        # TODO: Implement actual contract interaction:
-        # 1. Build transaction to IntegrityHash.registerContent(hash, creator)
-        # 2. Sign with API's private key
-        # 3. Submit to Polygon zkEVM
-        # 4. Wait for confirmation
-        # 5. Return transaction hash
-
-        # Mock response
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.01)
         mock_tx_hash = "0x" + "a" * 64
+        self._registry[content_hash] = {
+            "author": creator_address,
+            "tx": mock_tx_hash,
+            "metadata": metadata or {},
+        }
         logger.info(f"Content registered | tx={mock_tx_hash[:16]}...")
         return mock_tx_hash
 

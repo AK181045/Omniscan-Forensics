@@ -29,6 +29,29 @@ class FrequencyAnalyzer:
     def __init__(self, high_freq_threshold: float = 0.35):
         self.high_freq_threshold = high_freq_threshold
 
+    def compute_dct(self, frame: np.ndarray) -> np.ndarray:
+        """Compute 2D Discrete Cosine Transform of a grayscale frame."""
+        if len(frame.shape) == 3:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        return cv2.dct(frame.astype(np.float32))
+
+    def detect_ghosting(self, frame: np.ndarray) -> tuple[bool, float]:
+        """Detect spectral ghosting artifacts. Returns (detected: bool, score: float)."""
+        spectrum = self.compute_fft(frame)
+        h, w = spectrum.shape
+        center_y, center_x = h // 2, w // 2
+
+        radius = min(h, w) // 4
+        y, x = np.ogrid[:h, :w]
+        high_freq_mask = (y - center_y)**2 + (x - center_x)**2 > radius**2
+
+        high_energy = float(np.mean(spectrum[high_freq_mask]))
+        total_energy = float(np.mean(spectrum) + 1e-8)
+        ratio = float(high_energy / total_energy)
+
+        ghosting = bool(ratio > self.high_freq_threshold)
+        return ghosting, ratio
+
     def compute_fft(self, frame: np.ndarray) -> np.ndarray:
         """Compute 2D FFT magnitude spectrum (log scale) of a grayscale frame."""
         if len(frame.shape) == 3:
@@ -204,6 +227,7 @@ class FrequencyAnalyzer:
             "spectral_anomaly_score": round(float(avg_anomaly), 4),
             "grid_artifacts_present": grid_count > len(frames) * 0.25,
             "ghosting_detected": grid_count > len(frames) * 0.25,
+            "ghosting_frame_ratio": round(grid_count / max(len(frames), 1), 3),
             "grid_frame_ratio": round(grid_count / max(len(frames), 1), 3),
             "dct_moments": sample_frame_res.get("dct_moments", {}),
             "dwt_analysis": sample_frame_res.get("dwt_analysis", {}),

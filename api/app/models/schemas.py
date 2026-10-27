@@ -18,10 +18,6 @@ class Platform(str, Enum):
     YOUTUBE = "youtube"
     TWITTER = "twitter"
     TIKTOK = "tiktok"
-    INSTAGRAM = "instagram"
-    FACEBOOK = "facebook"
-    REDDIT = "reddit"
-    OTHER = "other"
     DEVICE = "device"
 
 
@@ -107,6 +103,13 @@ class MediaAnalysisRequest(BaseModel):
     def sanitize_hash(cls, v: str) -> str:
         return v.lower()  # Normalize to lowercase hex
 
+    @field_validator("media_url")
+    @classmethod
+    def validate_media_url(cls, v: str) -> str:
+        if not (v.startswith("http://") or v.startswith("https://") or v.startswith("device://")):
+            raise ValueError("Invalid URL format. Must start with http://, https://, or device://")
+        return v
+
     @field_validator("extension_version")
     @classmethod
     def sanitize_version(cls, v: Optional[str]) -> Optional[str]:
@@ -167,7 +170,7 @@ class MLResultResponse(BaseModel):
     is_partial: bool = False
     confidence: float = Field(ge=0.0, le=1.0)
     artifacts: list[str] = Field(default_factory=list)
-    model_version: str = "OmniScan-SRNet-F3Net-v5.0"
+    model_version: str = "xception-gru-v1"
     spatial: Optional[SpatialAnalysis] = None
     temporal: Optional[TemporalAnalysis] = None
     frequency: Optional[FrequencyAnalysis] = None

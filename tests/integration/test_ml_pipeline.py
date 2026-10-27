@@ -23,15 +23,20 @@ class TestMLPipelineIntegration:
     def sample_video(self):
         """Create a synthetic test video."""
         tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        tmp_name = tmp.name
+        tmp.close()
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        writer = cv2.VideoWriter(tmp.name, fourcc, 30.0, (640, 480))
+        writer = cv2.VideoWriter(tmp_name, fourcc, 30.0, (640, 480))
         for i in range(30):
             frame = np.random.randint(0, 255, (480, 640, 3), dtype=np.uint8)
             cv2.rectangle(frame, (200, 150), (440, 330), (200, 180, 160), -1)
             writer.write(frame)
         writer.release()
-        yield tmp.name
-        os.unlink(tmp.name)
+        yield tmp_name
+        try:
+            os.unlink(tmp_name)
+        except Exception:
+            pass
 
     def test_full_pipeline_frame_extraction(self, sample_video):
         """Frames should be extracted and resized to 299x299."""

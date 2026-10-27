@@ -25,8 +25,10 @@ class TestFrameExtractor:
     def sample_video_path(self):
         """Create a minimal synthetic test video."""
         tmp = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False)
+        tmp_name = tmp.name
+        tmp.close()
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        writer = cv2.VideoWriter(tmp.name, fourcc, 30.0, (640, 480))
+        writer = cv2.VideoWriter(tmp_name, fourcc, 30.0, (640, 480))
 
         # Write 60 frames (~2 seconds at 30fps)
         for i in range(60):
@@ -34,8 +36,11 @@ class TestFrameExtractor:
             writer.write(frame)
         writer.release()
 
-        yield tmp.name
-        os.unlink(tmp.name)
+        yield tmp_name
+        try:
+            os.unlink(tmp_name)
+        except Exception:
+            pass
 
     # =========================================================================
     # Test: Frame Extraction from File

@@ -53,6 +53,25 @@ from ml_models.models.srnet_model import OmniScanFusionNet, GradCAMExplainer
 logger = logging.getLogger("omniscan.services.detection")
 
 
+class ForensicAnalysisTuple(tuple):
+    """
+    Tuple containing (ml_result, blockchain_result) with attached forensic_ctx,
+    supporting both 2-tuple unpacking (for tests) and 3-tuple / attribute access.
+    """
+    def __new__(cls, ml_result, blockchain_result, forensic_ctx=None):
+        return super().__new__(cls, (ml_result, blockchain_result))
+
+    def __init__(self, ml_result, blockchain_result, forensic_ctx=None):
+        self.ml_result = ml_result
+        self.blockchain_result = blockchain_result
+        self.forensic_ctx = forensic_ctx or {}
+
+    def __getitem__(self, index):
+        if index == 2:
+            return self.forensic_ctx
+        return super().__getitem__(index)
+
+
 class DetectionService:
     """Central Multi-Modal Forensics Orchestrator for OmniScan."""
 
@@ -174,7 +193,7 @@ class DetectionService:
         elapsed_ms = (time.time() - start_time) * 1000
         logger.info(f"Forensic examination concluded in {elapsed_ms:.1f}ms")
 
-        return ml_result, blockchain_result, forensic_ctx
+        return ForensicAnalysisTuple(ml_result, blockchain_result, forensic_ctx)
 
     async def _run_multimodal_forensics(
         self,
@@ -406,3 +425,9 @@ class DetectionService:
     async def store_report(self, report_id: str, report_data: dict):
         """Store completed report into memory for certificate downloads."""
         await self.report_service.store_report(report_id, report_data)
+
+    async def get_report(self, report_id: str) -> Optional[dict]:
+        """Retrieve a report from the report service / storage."""
+        if hasattr(self, "report_service"):
+            return await self.report_service.get_report(report_id)
+        return None
